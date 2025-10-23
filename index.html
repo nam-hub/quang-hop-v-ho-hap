@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mô phỏng Quang Hợp & Hô Hấp</title>
+    <style>
+        :root {
+            --primary-color: #2e7d32;
+            --secondary-color: #4caf50;
+            --accent-color: #ff9800;
+            --light-color: #f1f8e9;
+            --dark-color: #1b5e20;
+            --text-color: #333;
+            --card-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+            --day-bg: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            --night-bg: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+            --day-sky: linear-gradient(to bottom, #87CEEB 0%, #E0F7FA 40%, #C8E6C9 100%);
+            --night-sky: linear-gradient(to bottom, #0f1c2e 0%, #1f3a5c 40%, #1a2b45 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: var(--day-bg);
+            min-height: 100vh;
+            padding: 20px;
+            transition: var(--transition);
+        }
+
+        body.night-mode {
+            color: #e0e0e0;
+            background: var(--night-bg);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+
+        .night-mode header {
+            background-color: #1e2a3a;
+            color: #e0e0e0;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            transition: var(--transition);
+        }
+
+        .night-mode h1 {
+            color: #81c784;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            transition: var(--transition);
+        }
+
+        .night-mode .subtitle {
+            color: #b0b0b0;
+        }
+
+        .mode-toggle {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 20px;
+        }
+
+        .mode-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1rem;
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(46, 125, 50, 0.4);
+        }
+
+        .night-mode .mode-btn {
+            background: #2d3748;
+            color: #b0b0b0;
+        }
+
+        .night-mode .mode-btn.active {
+            background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .simulation-card, .controls-card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            padding: 25px;
+            transition: var(--transition);
+        }
+
+        .night-mode .simulation-card, 
+        .night-mode .controls-card {
+            background-color: #1e2a3a;
+            color: #e0e0e0;
+        }
+
+        .simulation-card:hover, .controls-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-color);
+            font-size: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .night-mode .card-title {
+            color: #81c784;
+            border-bottom-color: #2d3748;
+        }
+
+        .simulation-area {
+            position: relative;
+            height: 400px;
+            background: var(--day-sky);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .night-mode .simulation-area {
+            background: var(--night-sky);
+        }
+
+        .sun, .moon {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10;
+            transition: var(--transition);
+        }
+
+        .sun {
+            background: radial-gradient(circle, #FFEB3B 0%, #FFC107 70%);
+            box-shadow: 0 0 30px #FF9800;
+            color: #FF6F00;
+        }
+
+        .moon {
+            background: radial-gradient(circle, #E0E0E0 0%, #BDBDBD 70%);
+            box-shadow: 0 0 20px #9E9E9E;
+            color: #757575;
+            display: none;
+        }
+
+        .night-mode .sun {
+            display: none;
+        }
+
+        .night-mode .moon {
+            display: flex;
+        }
+
+        .plant-container {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 350px;
+        }
+
+        .pot {
+            position: absolute;
+            bottom: 0;
+            width: 120px;
+            height: 70px;
+            background: linear-gradient(to right, #795548 0%, #5D4037 100%);
+            border-radius: 5px 5px 20px 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+
+        .soil {
+            position: absolute;
+            bottom: 70px;
+            width: 140px;
+            height: 20px;
+            background: #5D4037;
+            border-radius: 10px 10px 0 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+
+        .stem {
+            position: absolute;
+            bottom: 70px;
+            width: 20px;
+            height: 200px;
+            background: linear-gradient(to right, #388E3C 0%, #4CAF50 100%);
+            border-radius: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            transition: var(--transition);
+        }
+
+        .night-mode .stem {
+            background: linear-gradient(to right, #2e7d32 0%, #388E3C 100%);
+        }
+
+.leaf {
+    position: absolute;
+    width: 120px;
+    height: 190px;
+    background: linear-gradient(135deg, #4CAF50 0%, #81C784 100%);
+    border-radius: 0 0 50% 50%;
+    transform-origin: bottom right;
+    z-index: 4;
+    transition: var(--transition);
+}
+
+        .night-mode .leaf {
+            background: linear-gradient(135deg, #388E3C 0%, #4CAF50 100%);
+        }
+
+        .leaf-1 {
+            top: -127px;
+            left: -81px;
+            transform: rotate(-180deg);
+        }
+
+        .leaf-2 {
+            top: 90px;
+            left: 50px;
+            transform: rotate(-40deg);
+        }
+
+        .leaf-3 {
+            top: 60px;
+            left: 60px;
+            transform: rotate(-60deg);
+        }
+
+        .leaf-4 {
+            top: 120px;
+            right: 65px;
+            transform: rotate(20deg) scaleX(-1);
+        }
+
+        .leaf-5 {
+            top: 90px;
+            right: 50px;
+            transform: rotate(40deg) scaleX(-1);
+        }
+
+        .leaf-6 {
+            top: 60px;
+            right: 60px;
+            transform: rotate(60deg) scaleX(-1);
+        }
+
+        .molecules-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .molecule {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            border-radius: 10px;
+            transition: var(--transition);
+            min-width: 100px;
+        }
+
+        .molecule:hover {
+            transform: scale(1.05);
+        }
+
+        .molecule-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .co2 .molecule-icon {
+            background: linear-gradient(135deg, #607d8b 0%, #455a64 100%);
+        }
+
+        .h2o .molecule-icon {
+            background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+        }
+
+        .o2 .molecule-icon {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+        }
+
+        .glucose .molecule-icon {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+        }
+
+        .atp .molecule-icon {
+            background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+        }
+
+        .molecule-count {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            transition: var(--transition);
+        }
+
+        .night-mode .molecule-count {
+            color: #81c784;
+        }
+
+        .molecule-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+            transition: var(--transition);
+        }
+
+        .night-mode .molecule-label {
+            color: #b0b0b0;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-label {
+            font-weight: 600;
+            color: var(--primary-color);
+            transition: var(--transition);
+        }
+
+        .night-mode .control-label {
+            color: #81c784;
+        }
+
+        .control-value {
+            font-weight: bold;
+            color: var(--accent-color);
+            background: var(--light-color);
+            padding: 3px 10px;
+            border-radius: 15px;
+            transition: var(--transition);
+        }
+
+        .night-mode .control-value {
+            background: #2d3748;
+        }
+
+        .slider-container {
+            position: relative;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .night-mode .slider-container {
+            background: #2d3748;
+        }
+
+        .slider-fill {
+            position: absolute;
+            height: 100%;
+            border-radius: 15px;
+            transition: var(--transition);
+        }
+
+        .light-fill {
+            background: linear-gradient(to right, #FFF9C4 0%, #FFEB3B 100%);
+            width: 50%;
+        }
+
+        .co2-fill {
+            background: linear-gradient(to right, #B0BEC5 0%, #607d8b 100%);
+            width: 50%;
+        }
+
+        .h2o-fill {
+            background: linear-gradient(to right, #B3E5FC 0%, #2196f3 100%);
+            width: 50%;
+        }
+
+        .temp-fill {
+            background: linear-gradient(to right, #FFCCBC 0%, #FF5722 100%);
+            width: 50%;
+        }
+
+        input[type="range"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1rem;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: white;
+        }
+
+        .primary-btn:hover {
+            box-shadow: 0 5px 15px rgba(46, 125, 50, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .secondary-btn {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .secondary-btn:hover {
+            background: #d5d5d5;
+        }
+
+        .night-mode .secondary-btn {
+            background: #2d3748;
+            color: #b0b0b0;
+        }
+
+        .night-mode .secondary-btn:hover {
+            background: #374151;
+        }
+
+        .info-panel {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            padding: 25px;
+            margin-bottom: 30px;
+            transition: var(--transition);
+        }
+
+        .night-mode .info-panel {
+            background-color: #1e2a3a;
+            color: #e0e0e0;
+        }
+
+        .equation {
+            text-align: center;
+            font-size: 1.3rem;
+            padding: 20px;
+            background: var(--light-color);
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: 600;
+            color: var(--dark-color);
+            transition: var(--transition);
+        }
+
+        .night-mode .equation {
+            background: #2d3748;
+            color: #e0e0e0;
+        }
+
+        .status {
+            padding: 15px;
+            background: #E3F2FD;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #2196F3;
+            transition: var(--transition);
+        }
+
+        .night-mode .status {
+            background: #1e3a5c;
+            border-left-color: #3b82f6;
+        }
+
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 28px;
+            left: 18px;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .particle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            opacity: 0.8;
+            z-index: 5;
+        }
+
+        .arrows {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            font-size: 2rem;
+            color: var(--primary-color);
+            transition: var(--transition);
+        }
+
+        .night-mode .arrows {
+            color: #81c784;
+        }
+
+        .process-steps {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .step {
+            flex: 1;
+            padding: 15px;
+        }
+
+        .step-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--light-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 10px;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .night-mode .step-icon {
+            background: #2d3748;
+            color: #81c784;
+        }
+
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+            transition: var(--transition);
+        }
+
+        .night-mode .step-title {
+            color: #81c784;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .night-mode footer {
+            color: #b0b0b0;
+        }
+
+        @media (max-width: 600px) {
+            .molecules-container {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+            
+            .process-steps {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Mô phỏng Quang Hợp & Hô Hấp</h1>
+            <p class="subtitle">Khám phá quá trình thực vật chuyển đổi năng lượng vào ban ngày và ban đêm</p>
+        </header>
+
+        <div class="mode-toggle">
+            <button id="day-mode-btn" class="mode-btn active">Quang Hợp Ban Ngày</button>
+            <button id="night-mode-btn" class="mode-btn">Hô Hấp Ban Đêm</button>
+        </div>
+
+        <div class="main-content">
+            <div class="simulation-card">
+                <h2 class="card-title" id="simulation-title">Mô phỏng Quang Hợp</h2>
+                <div class="simulation-area">
+                    <div class="sun" id="sun">Mặt trời</div>
+                    <div class="moon" id="moon">Mặt trăng</div>
+                    <div class="plant-container">
+                        <div class="pot"></div>
+                        <div class="soil"></div>
+                        <div class="stem"></div>
+                        <div class="leaf leaf-1"></div>
+                        <!-- <div class="leaf leaf-2"></div>
+                        <div class="leaf leaf-3"></div>
+                        <div class="leaf leaf-4"></div>
+                        <div class="leaf leaf-5"></div>
+                        <div class="leaf leaf-6"></div> -->
+                    </div>
+                    <div class="particles" id="particles"></div>
+                </div>
+                
+                <div class="molecules-container">
+                    <div class="molecule co2">
+                        <div class="molecule-icon">CO₂</div>
+                        <div class="molecule-count" id="co2-count">6</div>
+                        <div class="molecule-label">Carbon Dioxide</div>
+                    </div>
+                    <div class="molecule h2o">
+                        <div class="molecule-icon">H₂O</div>
+                        <div class="molecule-count" id="h2o-count">6</div>
+                        <div class="molecule-label">Nước</div>
+                    </div>
+                    <div class="molecule o2">
+                        <div class="molecule-icon">O₂</div>
+                        <div class="molecule-count" id="o2-count">6</div>
+                        <div class="molecule-label">Oxy</div>
+                    </div>
+                    <div class="molecule glucose">
+                        <div class="molecule-icon">C₆H₁₂O₆</div>
+                        <div class="molecule-count" id="glucose-count">1</div>
+                        <div class="molecule-label">Đường Glucose</div>
+                    </div>
+                    <div class="molecule atp hidden">
+                        <div class="molecule-icon">ATP</div>
+                        <div class="molecule-count" id="atp-count">0</div>
+                        <div class="molecule-label">Năng lượng</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls-card">
+                <h2 class="card-title" id="controls-title">Điều khiển Quang hợp</h2>
+                <div class="controls">
+                    <div class="control-group" id="light-control">
+                        <div class="control-header">
+                            <span class="control-label">Cường độ ánh sáng</span>
+                            <span class="control-value" id="light-value">50%</span>
+                        </div>
+                        <div class="slider-container">
+                            <div class="slider-fill light-fill" id="light-fill"></div>
+                            <input type="range" id="light-intensity" min="0" max="100" value="50">
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <div class="control-header">
+                            <span class="control-label">Lượng CO₂</span>
+                            <span class="control-value" id="co2-value">6</span>
+                        </div>
+                        <div class="slider-container">
+                            <div class="slider-fill co2-fill" id="co2-fill"></div>
+                            <input type="range" id="co2-amount" min="0" max="12" value="6">
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <div class="control-header">
+                            <span class="control-label">Lượng nước</span>
+                            <span class="control-value" id="h2o-value">6</span>
+                        </div>
+                        <div class="slider-container">
+                            <div class="slider-fill h2o-fill" id="h2o-fill"></div>
+                            <input type="range" id="h2o-amount" min="0" max="12" value="6">
+                        </div>
+                    </div>
+
+                    <div class="control-group hidden" id="temp-control">
+                        <div class="control-header">
+                            <span class="control-label">Nhiệt độ</span>
+                            <span class="control-value" id="temp-value">25°C</span>
+                        </div>
+                        <div class="slider-container">
+                            <div class="slider-fill temp-fill" id="temp-fill"></div>
+                            <input type="range" id="temp-amount" min="10" max="40" value="25">
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button id="start-btn" class="primary-btn">Bắt đầu Quá trình</button>
+                        <button id="reset-btn" class="secondary-btn">Thiết lập lại</button>
+                    </div>
+                </div>
+                
+                <div class="status" id="status">
+                    Sẵn sàng để bắt đầu quá trình quang hợp. Điều chỉnh các thông số và nhấn "Bắt đầu Quá trình".
+                </div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <h2 class="card-title" id="info-title">Quá trình Quang hợp</h2>
+            <div class="equation" id="equation">
+                6CO₂ + 6H₂O + Ánh sáng → C₆H₁₂O₆ + 6O₂
+            </div>
+            
+            <div class="process-steps" id="day-steps">
+                <div class="step">
+                    <div class="step-icon">☀️</div>
+                    <div class="step-title">Ánh sáng</div>
+                    <p>Cây hấp thụ năng lượng từ ánh sáng mặt trời</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">💧</div>
+                    <div class="step-title">Nước</div>
+                    <p>Rễ cây hút nước từ đất</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">🌬️</div>
+                    <div class="step-title">CO₂</div>
+                    <p>Lá cây hấp thụ khí CO₂ từ không khí</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">🌿</div>
+                    <div class="step-title">Quang hợp</div>
+                    <p>Tạo ra đường glucose và oxy</p>
+                </div>
+            </div>
+
+            <div class="process-steps hidden" id="night-steps">
+                <div class="step">
+                    <div class="step-icon">🌙</div>
+                    <div class="step-title">Ban đêm</div>
+                    <p>Cây ngừng quang hợp, bắt đầu hô hấp</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">🍬</div>
+                    <div class="step-title">Đường Glucose</div>
+                    <p>Cây sử dụng đường dự trữ</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">💨</div>
+                    <div class="step-title">Oxy</div>
+                    <p>Cây tiêu thụ oxy từ không khí</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">⚡</div>
+                    <div class="step-title">Năng lượng</div>
+                    <p>Tạo ra năng lượng (ATP) cho cây</p>
+                </div>
+            </div>
+            
+            <p id="process-description">Quang hợp là quá trình thực vật sử dụng năng lượng ánh sáng mặt trời để chuyển đổi carbon dioxide (CO₂) và nước (H₂O) thành đường (glucose) và oxy (O₂). Quá trình này xảy ra trong lục lạp của tế bào thực vật, nơi chứa chất diệp lục hấp thụ ánh sáng.</p>
+        </div>
+
+        <footer>
+            <p>Mô phỏng Quang Hợp & Hô Hấp &copy; 2023 - Dành cho mục đích giáo dục</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Lấy các phần tử DOM
+            const lightIntensity = document.getElementById('light-intensity');
+            const co2Amount = document.getElementById('co2-amount');
+            const h2oAmount = document.getElementById('h2o-amount');
+            const tempAmount = document.getElementById('temp-amount');
+            const startBtn = document.getElementById('start-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const dayModeBtn = document.getElementById('day-mode-btn');
+            const nightModeBtn = document.getElementById('night-mode-btn');
+            const status = document.getElementById('status');
+            const particlesContainer = document.getElementById('particles');
+            const sun = document.getElementById('sun');
+            const moon = document.getElementById('moon');
+            const body = document.body;
+            
+            // Các phần tử cần thay đổi theo chế độ
+            const simulationTitle = document.getElementById('simulation-title');
+            const controlsTitle = document.getElementById('controls-title');
+            const infoTitle = document.getElementById('info-title');
+            const equation = document.getElementById('equation');
+            const daySteps = document.getElementById('day-steps');
+            const nightSteps = document.getElementById('night-steps');
+            const processDescription = document.getElementById('process-description');
+            const lightControl = document.getElementById('light-control');
+            const tempControl = document.getElementById('temp-control');
+            const atpMolecule = document.querySelector('.molecule.atp');
+            
+            // Các thanh trượt fill
+            const lightFill = document.getElementById('light-fill');
+            const co2Fill = document.getElementById('co2-fill');
+            const h2oFill = document.getElementById('h2o-fill');
+            const tempFill = document.getElementById('temp-fill');
+            
+            // Đếm số lượng phân tử
+            const co2Count = document.getElementById('co2-count');
+            const h2oCount = document.getElementById('h2o-count');
+            const o2Count = document.getElementById('o2-count');
+            const glucoseCount = document.getElementById('glucose-count');
+            const atpCount = document.getElementById('atp-count');
+            
+            // Giá trị hiển thị
+            const lightValue = document.getElementById('light-value');
+            const co2Value = document.getElementById('co2-value');
+            const h2oValue = document.getElementById('h2o-value');
+            const tempValue = document.getElementById('temp-value');
+            
+            // Biến trạng thái
+            let isDayMode = true;
+            
+            // Khởi tạo thanh trượt
+            updateSliderFill(lightIntensity, lightFill);
+            updateSliderFill(co2Amount, co2Fill);
+            updateSliderFill(h2oAmount, h2oFill);
+            updateSliderFill(tempAmount, tempFill);
+            
+            // Cập nhật giá trị khi kéo thanh trượt
+            lightIntensity.addEventListener('input', function() {
+                lightValue.textContent = this.value + '%';
+                updateSliderFill(this, lightFill);
+                updateSunIntensity(this.value);
+            });
+            
+            co2Amount.addEventListener('input', function() {
+                co2Value.textContent = this.value;
+                co2Count.textContent = this.value;
+                updateSliderFill(this, co2Fill);
+            });
+            
+            h2oAmount.addEventListener('input', function() {
+                h2oValue.textContent = this.value;
+                h2oCount.textContent = this.value;
+                updateSliderFill(this, h2oFill);
+            });
+            
+            tempAmount.addEventListener('input', function() {
+                tempValue.textContent = this.value + '°C';
+                updateSliderFill(this, tempFill);
+            });
+            
+            // Cập nhật thanh trượt fill
+            function updateSliderFill(slider, fill) {
+                const value = slider.value;
+                const max = slider.max;
+                const min = slider.min;
+                fill.style.width = `${((value - min) / (max - min)) * 100}%`;
+            }
+            
+            // Cập nhật cường độ ánh sáng mặt trời
+            function updateSunIntensity(value) {
+                const intensity = value / 100;
+                sun.style.boxShadow = `0 0 ${20 + intensity * 30}px #FF9800`;
+                sun.style.opacity = 0.7 + intensity * 0.3;
+            }
+            
+            // Chuyển đổi chế độ ngày/đêm
+            dayModeBtn.addEventListener('click', function() {
+                if (!isDayMode) {
+                    switchToDayMode();
+                }
+            });
+            
+            nightModeBtn.addEventListener('click', function() {
+                if (isDayMode) {
+                    switchToNightMode();
+                }
+            });
+            
+            function switchToDayMode() {
+                isDayMode = true;
+                body.classList.remove('night-mode');
+                dayModeBtn.classList.add('active');
+                nightModeBtn.classList.remove('active');
+                
+                simulationTitle.textContent = "Mô phỏng Quang Hợp";
+                controlsTitle.textContent = "Điều khiển Quang hợp";
+                infoTitle.textContent = "Quá trình Quang hợp";
+                equation.textContent = "6CO₂ + 6H₂O + Ánh sáng → C₆H₁₂O₆ + 6O₂";
+                processDescription.textContent = "Quang hợp là quá trình thực vật sử dụng năng lượng ánh sáng mặt trời để chuyển đổi carbon dioxide (CO₂) và nước (H₂O) thành đường (glucose) và oxy (O₂). Quá trình này xảy ra trong lục lạp của tế bào thực vật, nơi chứa chất diệp lục hấp thụ ánh sáng.";
+                
+                daySteps.classList.remove('hidden');
+                nightSteps.classList.add('hidden');
+                lightControl.classList.remove('hidden');
+                tempControl.classList.add('hidden');
+                atpMolecule.classList.add('hidden');
+                
+                startBtn.textContent = "Bắt đầu Quang hợp";
+                status.textContent = "Sẵn sàng để bắt đầu quá trình quang hợp. Điều chỉnh các thông số và nhấn 'Bắt đầu Quang hợp'.";
+                status.style.background = "#E3F2FD";
+                status.style.borderLeftColor = "#2196F3";
+            }
+            
+            function switchToNightMode() {
+                isDayMode = false;
+                body.classList.add('night-mode');
+                dayModeBtn.classList.remove('active');
+                nightModeBtn.classList.add('active');
+                
+                simulationTitle.textContent = "Mô phỏng Hô Hấp";
+                controlsTitle.textContent = "Điều khiển Hô Hấp";
+                infoTitle.textContent = "Quá trình Hô Hấp";
+                equation.textContent = "C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + Năng lượng (ATP)";
+                processDescription.textContent = "Hô hấp là quá trình thực vật sử dụng đường glucose và oxy để tạo ra năng lượng (ATP), đồng thời giải phóng carbon dioxide (CO₂) và nước (H₂O). Quá trình này xảy ra trong ti thể của tế bào thực vật và diễn ra cả ngày lẫn đêm, nhưng rõ rệt hơn vào ban đêm khi quang hợp ngừng lại.";
+                
+                daySteps.classList.add('hidden');
+                nightSteps.classList.remove('hidden');
+                lightControl.classList.add('hidden');
+                tempControl.classList.remove('hidden');
+                atpMolecule.classList.remove('hidden');
+                
+                startBtn.textContent = "Bắt đầu Hô Hấp";
+                status.textContent = "Sẵn sàng để bắt đầu quá trình hô hấp. Điều chỉnh các thông số và nhấn 'Bắt đầu Hô Hấp'.";
+                status.style.background = "#1e3a5c";
+                status.style.borderLeftColor = "#3b82f6";
+            }
+            
+            // Nút thiết lập lại
+            resetBtn.addEventListener('click', function() {
+                if (isDayMode) {
+                    lightIntensity.value = 50;
+                    co2Amount.value = 6;
+                    h2oAmount.value = 6;
+                    
+                    lightValue.textContent = '50%';
+                    co2Value.textContent = '6';
+                    h2oValue.textContent = '6';
+                    
+                    co2Count.textContent = '6';
+                    h2oCount.textContent = '6';
+                    o2Count.textContent = '6';
+                    glucoseCount.textContent = '1';
+                    
+                    updateSliderFill(lightIntensity, lightFill);
+                    updateSliderFill(co2Amount, co2Fill);
+                    updateSliderFill(h2oAmount, h2oFill);
+                    updateSunIntensity(50);
+                    
+                    status.textContent = "Thiết lập lại thành công. Sẵn sàng để bắt đầu quá trình quang hợp.";
+                } else {
+                    tempAmount.value = 25;
+                    co2Amount.value = 6;
+                    h2oAmount.value = 6;
+                    
+                    tempValue.textContent = '25°C';
+                    co2Value.textContent = '6';
+                    h2oValue.textContent = '6';
+                    
+                    co2Count.textContent = '6';
+                    h2oCount.textContent = '6';
+                    o2Count.textContent = '6';
+                    glucoseCount.textContent = '1';
+                    atpCount.textContent = '0';
+                    
+                    updateSliderFill(tempAmount, tempFill);
+                    updateSliderFill(co2Amount, co2Fill);
+                    updateSliderFill(h2oAmount, h2oFill);
+                    
+                    status.textContent = "Thiết lập lại thành công. Sẵn sàng để bắt đầu quá trình hô hấp.";
+                }
+                
+                // Xóa tất cả các hạt
+                particlesContainer.innerHTML = '';
+            });
+            
+            // Bắt đầu quá trình
+            startBtn.addEventListener('click', function() {
+                if (isDayMode) {
+                    startPhotosynthesis();
+                } else {
+                    startRespiration();
+                }
+            });
+            
+            // Bắt đầu quang hợp
+            function startPhotosynthesis() {
+                const light = parseInt(lightIntensity.value);
+                const co2 = parseInt(co2Amount.value);
+                const h2o = parseInt(h2oAmount.value);
+                
+                // Kiểm tra điều kiện
+                if (light < 10) {
+                    status.textContent = "Cường độ ánh sáng quá thấp! Cần ít nhất 10% để quang hợp.";
+                    status.style.background = "#FFEBEE";
+                    status.style.borderLeftColor = "#F44336";
+                    return;
+                }
+                
+                if (co2 < 6) {
+                    status.textContent = "Không đủ CO₂! Cần ít nhất 6 phân tử CO₂.";
+                    status.style.background = "#FFEBEE";
+                    status.style.borderLeftColor = "#F44336";
+                    return;
+                }
+                
+                if (h2o < 6) {
+                    status.textContent = "Không đủ nước! Cần ít nhất 6 phân tử nước.";
+                    status.style.background = "#FFEBEE";
+                    status.style.borderLeftColor = "#F44336";
+                    return;
+                }
+                
+                status.textContent = "Đang thực hiện quang hợp...";
+                status.style.background = "#E3F2FD";
+                status.style.borderLeftColor = "#2196F3";
+                startBtn.disabled = true;
+                
+                // Tạo hiệu ứng hạt
+                createParticles('co2', 6, true);
+                createParticles('h2o', 6, true);
+                
+                // Mô phỏng quá trình quang hợp sau 2 giây
+                setTimeout(function() {
+                    // Tính toán sản phẩm dựa trên nguyên liệu
+                    const reactions = Math.min(Math.floor(co2 / 6), Math.floor(h2o / 6));
+                    const o2Produced = reactions * 6;
+                    const glucoseProduced = reactions;
+                    
+                    // Cập nhật số lượng
+                    co2Count.textContent = co2 - (reactions * 6);
+                    co2Amount.value = co2 - (reactions * 6);
+                    co2Value.textContent = co2 - (reactions * 6);
+                    updateSliderFill(co2Amount, co2Fill);
+                    
+                    h2oCount.textContent = h2o - (reactions * 6);
+                    h2oAmount.value = h2o - (reactions * 6);
+                    h2oValue.textContent = h2o - (reactions * 6);
+                    updateSliderFill(h2oAmount, h2oFill);
+                    
+                    o2Count.textContent = parseInt(o2Count.textContent) + o2Produced;
+                    glucoseCount.textContent = parseInt(glucoseCount.textContent) + glucoseProduced;
+                    
+                    // Tạo hiệu ứng cho sản phẩm
+                    createParticles('o2', o2Produced, false);
+                    createParticles('glucose', glucoseProduced, false);
+                    
+                    status.textContent = `Quang hợp hoàn tất! Tạo ra ${o2Produced} phân tử O₂ và ${glucoseProduced} phân tử đường glucose.`;
+                    status.style.background = "#E8F5E9";
+                    status.style.borderLeftColor = "#4CAF50";
+                    startBtn.disabled = false;
+                }, 2000);
+            }
+            
+            // Bắt đầu hô hấp
+            function startRespiration() {
+                const temp = parseInt(tempAmount.value);
+                const glucose = parseInt(glucoseCount.textContent);
+                const o2 = parseInt(o2Count.textContent);
+                
+                // Kiểm tra điều kiện
+                if (temp < 15) {
+                    status.textContent = "Nhiệt độ quá thấp! Cần ít nhất 15°C để hô hấp hiệu quả.";
+                    status.style.background = "#FFEBEE";
+                    status.style.borderLeftColor = "#F44336";
+                    return;
+                }
+                
+                if (temp > 35) {
+                    status.textContent = "Nhiệt độ quá cao! Hô hấp bị ức chế trên 35°C.";
+                    status.style.background = "#FFEBEE";
+                    status.style.borderLeftColor = "#F44336";
+                    return;
+                }
+                
+                if (glucose < 1) {
+                    status.textContent = "Không đủ glucose! Cần ít nhất 1 phân tử glucose.";
+                    status.style.background = "##75163F";
+                    status.style.borderLeftColor = "#F44336";
+                    return;
+                }
+                
+                if (o2 < 6) {
+                    status.textContent = "Không đủ oxy! Cần ít nhất 6 phân tử O₂.";
+                    status.style.background = "#FFEBEE";
+                    status.style.borderLeftColor = "#F44336";
+                    return;
+                }
+                
+                status.textContent = "Đang thực hiện hô hấp...";
+                status.style.background = "#1e3a5c";
+                status.style.borderLeftColor = "#3b82f6";
+                startBtn.disabled = true;
+                
+                // Tạo hiệu ứng hạt
+                createParticles('glucose', 1, true);
+                createParticles('o2', 6, true);
+                
+                // Mô phỏng quá trình hô hấp sau 2 giây
+                setTimeout(function() {
+                    // Tính toán sản phẩm dựa trên nguyên liệu
+                    const reactions = Math.min(Math.floor(glucose), Math.floor(o2 / 6));
+                    const co2Produced = reactions * 6;
+                    const h2oProduced = reactions * 6;
+                    const atpProduced = reactions * 36; // Giả định: 1 glucose tạo ra ~36 ATP
+                    
+                    // Cập nhật số lượng
+                    glucoseCount.textContent = glucose - reactions;
+                    o2Count.textContent = o2 - (reactions * 6);
+                    
+                    co2Count.textContent = parseInt(co2Count.textContent) + co2Produced;
+                    co2Amount.value = parseInt(co2Count.textContent);
+                    co2Value.textContent = parseInt(co2Count.textContent);
+                    updateSliderFill(co2Amount, co2Fill);
+                    
+                    h2oCount.textContent = parseInt(h2oCount.textContent) + h2oProduced;
+                    h2oAmount.value = parseInt(h2oCount.textContent);
+                    h2oValue.textContent = parseInt(h2oCount.textContent);
+                    updateSliderFill(h2oAmount, h2oFill);
+                    
+                    atpCount.textContent = parseInt(atpCount.textContent) + atpProduced;
+                    
+                    // Tạo hiệu ứng cho sản phẩm
+                    createParticles('co2', co2Produced, false);
+                    createParticles('h2o', h2oProduced, false);
+                    createParticles('atp', atpProduced, false);
+                    
+                    status.textContent = `Hô hấp hoàn tất! Tạo ra ${co2Produced} phân tử CO₂, ${h2oProduced} phân tử nước và ${atpProduced} ATP.`;
+                    status.style.background = "#1e3a5c";
+                    status.style.borderLeftColor = "#3b82f6";
+                    startBtn.disabled = false;
+                }, 2000);
+            }
+            
+            // Tạo hiệu ứng hạt
+            function createParticles(type, count, isInput) {
+                const colors = {
+                    'co2': '#607d8b',
+                    'h2o': '#2196f3',
+                    'o2': '#f44336',
+                    'glucose': '#ff9800',
+                    'atp': '#9c27b0'
+                };
+                
+                const sizes = {
+                    'co2': '12px',
+                    'h2o': '14px',
+                    'o2': '10px',
+                    'glucose': '16px',
+                    'atp': '10px'
+                };
+                
+                for (let i = 0; i < count; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.backgroundColor = colors[type];
+                    particle.style.width = sizes[type];
+                    particle.style.height = sizes[type];
+                    
+                    // Vị trí ban đầu và điểm đến
+                    let startX, startY, targetX, targetY;
+                    
+                    if (isInput) {
+                        // Hạt đi vào cây (nguyên liệu)
+                        if (type === 'co2') {
+                            startX = 10 + Math.random() * 30; // Bên trái
+                        } else if (type === 'h2o') {
+                            startX = 60 + Math.random() * 30; // Bên phải
+                        } else if (type === 'glucose' || type === 'o2') {
+                            startX = 20 + Math.random() * 60; // Ngẫu nhiên
+                        } else if (type === 'atp') {
+                            startX = 20 + Math.random() * 60;
+                        }
+                        startY = 100;
+                        
+                        // Đi vào cây
+                        targetX = 45 + (Math.random() - 0.5) * 10;
+                        targetY = 40 + (Math.random() - 0.5) * 10;
+                    } else {
+                        // Hạt đi ra từ cây (sản phẩm)
+                        startX = 45 + (Math.random() - 0.5) * 10;
+                        startY = 40 + (Math.random() - 0.5) * 10;
+                        
+                        // Đi ra từ cây
+                        if (type === 'o2') {
+                            targetX = startX + (Math.random() - 0.5) * 40;
+                            targetY = startY - 30 - Math.random() * 20;
+                        } else if (type === 'glucose') {
+                            targetX = 45 + (Math.random() - 0.5) * 10;
+                            targetY = 80 + Math.random() * 15;
+                        } else if (type === 'co2') {
+                            targetX = 10 + Math.random() * 30;
+                            targetY = 100;
+                        } else if (type === 'h2o') {
+                            targetX = 60 + Math.random() * 30;
+                            targetY = 100;
+                        } else if (type === 'atp') {
+                            targetX = 45 + (Math.random() - 0.5) * 10;
+                            targetY = 80 + Math.random() * 15;
+                        }
+                    }
+                    
+                    particle.style.left = startX + '%';
+                    particle.style.top = startY + '%';
+                    
+                    particlesContainer.appendChild(particle);
+                    
+                    // Di chuyển hạt
+                    setTimeout(function() {
+                        particle.style.transition = 'all 1.5s ease-in-out';
+                        particle.style.left = targetX + '%';
+                        particle.style.top = targetY + '%';
+                        particle.style.opacity = '0';
+                        
+                        // Xóa hạt sau khi di chuyển
+                        setTimeout(function() {
+                            if (particle.parentNode) {
+                                particle.parentNode.removeChild(particle);
+                            }
+                        }, 1500);
+                    }, 100 * i);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
