@@ -664,6 +664,39 @@
         .hidden {
             display: none;
         }
+        /* === BACK BUTTON === */
+.back-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2b3a55, #4a6fa5);
+  border: none;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, box-shadow 0.3s;
+  z-index: 9999;
+}
+
+.back-btn:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+}
+
+.back-btn:active {
+  transform: scale(0.95);
+}
+
+.back-btn svg {
+  width: 28px;
+  height: 28px;
+  fill: #fff;
+}
     </style>
 </head>
 <body>
@@ -842,8 +875,20 @@
         </div>
 
     </div>
+  <button class="back-btn" onclick="goBack()" title="Quay lại">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M20 11H8.414l4.293-4.293a1 1 0 0 0-1.414-1.414l-6 6a1 1 0 0 0 0 1.414l6 6a1 1 0 0 0 1.414-1.414L8.414 13H20a1 1 0 0 0 0-2z"/>
+    </svg>
+  </button>
 
-    <script>
+  <script>
+    function goBack() {
+      if (history.length > 1) {
+        history.back();
+      } else {
+        location.href = 'https://biology.4devvn.com/baihoc';
+      }
+    }
         document.addEventListener('DOMContentLoaded', function() {
             // Lấy các phần tử DOM
             const lightIntensity = document.getElementById('light-intensity');
