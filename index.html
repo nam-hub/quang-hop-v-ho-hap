@@ -314,6 +314,14 @@
             transform: rotate(60deg) scaleX(-1);
         }
 
+        .simulation-tittle{
+            opacity: 0.5;
+            display: flex;
+            justify-content: center;
+            font-weight: 100px;
+            font-size: 13px;
+        }
+
         .molecules-container {
             display: flex;
             justify-content: space-between;
@@ -671,21 +679,45 @@
   right: 30px;
   width: 60px;
   height: 60px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #2b3a55, #4a6fa5);
+    border-radius: 50% 50% 0 50%;
+    background: linear-gradient(135deg, #2b3a55, #4a6fa5);
   border: none;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s, box-shadow 0.3s;
+  transition: all 0.5s ease;
   z-index: 9999;
+    animation: bounce 1s infinite ease-in-out;
+}
+
+  @keyframes bounce {
+  0% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-30px);
+  }
+  40% {
+    transform: translateX(0);
+  }
+  60% {
+    transform: translateX(-20px);
+  }
+  80% {
+    transform: translateX(0);
+  }
+
+
 }
 
 .back-btn:hover {
-  transform: translateY(-5px) scale(1.05);
+  transform: translateY(-5px) scale(1.09);
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+  transform: rotate(180deg);
+      border-radius: 40% 20% 20% 20%;
+
 }
 
 .back-btn:active {
@@ -722,15 +754,17 @@
                         <div class="soil"></div>
                         <div class="stem"></div>
                         <div class="leaf leaf-1"></div>
-                        <!-- <div class="leaf leaf-2"></div>
-                        <div class="leaf leaf-3"></div>
+                        <!-- <div class="leaf leaf-2"></div> -->
+                        <!-- <div class="leaf leaf-3"></div>
                         <div class="leaf leaf-4"></div>
                         <div class="leaf leaf-5"></div>
                         <div class="leaf leaf-6"></div> -->
                     </div>
                     <div class="particles" id="particles"></div>
                 </div>
-                
+                <div class="simulation-tittle">
+                    <h4>*hình ảnh chỉ mang tính chất tham khảo*</h4>
+                </div>
                 <div class="molecules-container">
                     <div class="molecule co2">
                         <div class="molecule-icon">CO₂</div>
